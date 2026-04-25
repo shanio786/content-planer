@@ -1,0 +1,59 @@
+root@srv1527649:/www/wwwroot/tasks# ls /www/server/nodejs/
+cache  v20.20.2  vhost
+root@srv1527649:/www/wwwroot/tasks# export PATH=/www/server/nodejs/v20.20.2/bin:$PATH
+node -v
+npm install -g pnpm
+v20.20.2
+
+changed 1 package in 1s
+
+1 package is looking for funding
+  run `npm fund` for details
+root@srv1527649:/www/wwwroot/tasks# cd /www/wwwroot/tasks
+pnpm install
+pnpm --filter @workspace/api-server run build
+pnpm --filter @workspace/dashboard run build
+chown -R www:www /www/wwwroot/tasks
+Scope: all 10 workspace projects
+Lockfile is up to date, resolution step is skipped
+Packages: +487
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 487, reused 486, downloaded 1, added 487, done
+
+devDependencies:
++ prettier 3.8.1
++ typescript 5.9.3
+
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+└─ Done in 15ms
+Done in 3.6s using pnpm v10.33.2
+
+> @workspace/api-server@0.0.0 build /www/wwwroot/tasks/artifacts/api-server
+> node ./build.mjs
+
+
+  dist/index.mjs                  1.5mb ⚠️
+  dist/pino-worker.mjs           63.6kb
+  dist/pino-file.mjs             58.9kb
+  dist/pino-pretty.mjs           47.9kb
+  dist/thread-stream-worker.mjs   3.5kb
+
+⚡ Done in 207ms
+
+> @workspace/dashboard@0.0.0 build /www/wwwroot/tasks/artifacts/dashboard
+> vite build --config vite.config.ts
+
+vite v7.3.1 building client environment for production...
+src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+✓ 2141 modules transformed.
+dist/public/index.html                   0.74 kB │ gzip:   0.42 kB
+dist/public/assets/index-ZZQusQ-Q.css  121.92 kB │ gzip:  19.03 kB
+dist/public/assets/index-cBf0gAqc.js   517.06 kB │ gzip: 151.53 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.63s
+root@srv1527649:/www/wwwroot/tasks# 

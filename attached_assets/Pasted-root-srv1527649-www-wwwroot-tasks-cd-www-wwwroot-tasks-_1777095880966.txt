@@ -1,0 +1,55 @@
+root@srv1527649:/www/wwwroot/tasks# cd /www/wwwroot/tasks
+export PATH=/www/server/nodejs/v20.20.2/bin:$PATH
+root@srv1527649:/www/wwwroot/tasks# git fetch origin main && git reset --hard origin/main
+From https://github.com/shanio786/content-planer
+ * branch            main       -> FETCH_HEAD
+HEAD is now at 5465783 Mirror snapshot 2026-04-24T11:37:59Z
+root@srv1527649:/www/wwwroot/tasks# pnpm install
+pnpm run build
+Scope: all 10 workspace projects
+Lockfile is up to date, resolution step is skipped
+Already up to date
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+└─ Done in 17ms
+Done in 1.4s using pnpm v10.33.2
+
+> workspace@0.0.0 build /www/wwwroot/tasks
+> pnpm run typecheck && pnpm -r --if-present run build
+
+
+> workspace@0.0.0 typecheck /www/wwwroot/tasks
+> pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+
+
+> workspace@0.0.0 typecheck:libs /www/wwwroot/tasks
+> tsc --build
+
+Scope: 4 of 10 workspace projects
+artifacts/dashboard typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 7.9s
+artifacts/api-server typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 3.5s
+artifacts/mockup-sandbox typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 6.5s
+scripts typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 1.3s
+Scope: 9 of 10 workspace projects
+artifacts/mockup-sandbox build$ vite build
+│ failed to load config from /www/wwwroot/tasks/artifacts/mockup-sandbox/vite.config.ts
+│ error during build:
+│ Error: PORT environment variable is required but was not provided.
+│     at file:///www/wwwroot/tasks/artifacts/mockup-sandbox/node_modules/.vite-temp/vite.config.ts.timestamp-1777095777278-40482b0ddffe9.mjs:145:9
+│     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+│     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+│     at async loadConfigFromBundledFile (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/v…
+│     at async bundleAndLoadConfigFile (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vit…
+│     at async loadConfigFromFile (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dis…
+│     at async resolveConfig (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/nod…
+│     at async createBuilder (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/nod…
+│     at async CAC.<anonymous> (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/n…
+└─ Failed in 351ms at /www/wwwroot/tasks/artifacts/mockup-sandbox
+/www/wwwroot/tasks/artifacts/mockup-sandbox:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/mockup-sandbox@2.0.0 build: `vite build`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.
+root@srv1527649:/www/wwwroot/tasks# 

@@ -1,0 +1,73 @@
+root@srv1527649:/www/wwwroot/tasks# cd /www/wwwroot/tasks
+git fetch origin main && git reset --hard origin/main
+pnpm install
+pnpm run build
+remote: Enumerating objects: 309, done.
+remote: Counting objects: 100% (309/309), done.
+remote: Compressing objects: 100% (209/209), done.
+remote: Total 309 (delta 89), reused 309 (delta 89), pack-reused 0 (from 0)
+Receiving objects: 100% (309/309), 416.89 KiB | 13.45 MiB/s, done.
+Resolving deltas: 100% (89/89), done.
+From https://github.com/shanio786/content-planer
+ * branch            main       -> FETCH_HEAD
+ + 02e3d90...2af7698 main       -> origin/main  (forced update)
+HEAD is now at 2af7698 Mirror snapshot 2026-04-25T05:47:28Z
+Scope: all 9 workspace projects
+Lockfile is up to date, resolution step is skipped
+Already up to date
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+└─ Done in 14ms
+Done in 1.4s using pnpm v10.33.2
+
+> workspace@0.0.0 build /www/wwwroot/tasks
+> pnpm run typecheck && pnpm -r --filter "!@workspace/mockup-sandbox" --if-present run build
+
+
+> workspace@0.0.0 typecheck /www/wwwroot/tasks
+> pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+
+
+> workspace@0.0.0 typecheck:libs /www/wwwroot/tasks
+> tsc --build
+
+Scope: 4 of 9 workspace projects
+artifacts/api-server typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 3s
+artifacts/mockup-sandbox typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 6.1s
+scripts typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 1.3s
+artifacts/dashboard typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 7.3s
+Scope: 8 of 9 workspace projects
+artifacts/api-server build$ node ./build.mjs
+│   dist/index.mjs                  1.2mb ⚠️
+│   dist/pino-worker.mjs           63.6kb
+│   dist/pino-file.mjs             58.9kb
+│   dist/pino-pretty.mjs           47.9kb
+│   dist/thread-stream-worker.mjs   3.5kb
+│ ⚡ Done in 226ms
+└─ Done in 315ms
+artifacts/dashboard build$ vite build --config vite.config.ts
+[1 lines collapsed]
+│ transforming...
+│ src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+│ src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+│ ✓ 2137 modules transformed.
+│ rendering chunks...
+│ computing gzip size...
+│ dist/public/index.html                   0.93 kB │ gzip:   0.46 kB
+│ dist/public/assets/index-_GfKAOQS.css   99.82 kB │ gzip:  16.25 kB
+│ dist/public/assets/index-CidGHC2f.js   474.57 kB │ gzip: 142.72 kB
+│ ✓ built in 3.20s
+└─ Done in 3.6s
+root@srv1527649:/www/wwwroot/tasks# export ADMIN_PASSWORD='Zee@786786'
+export NODE_ENV=production
+export PORT=3000
+export STATIC_DIR=/www/wwwroot/tasks/artifacts/dashboard/dist/public
+
+node artifacts/api-server/dist/index.mjs
+{"level":30,"time":1777096126775,"pid":785058,"hostname":"srv1527649","STATIC_DIR":"/www/wwwroot/tasks/artifacts/dashboard/dist/public","msg":"Serving dashboard static files"}
+Seed function is a no-op. No demo data will be inserted.
+{"level":30,"time":1777096126809,"pid":785058,"hostname":"srv1527649","msg":"Database schema ready"}
+{"level":30,"time":1777096126812,"pid":785058,"hostname":"srv1527649","port":3000,"msg":"Server listening"}

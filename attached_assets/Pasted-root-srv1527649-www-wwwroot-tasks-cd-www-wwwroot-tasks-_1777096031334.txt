@@ -1,0 +1,64 @@
+root@srv1527649:/www/wwwroot/tasks# cd /www/wwwroot/tasks
+git fetch origin main && git reset --hard origin/main
+export PORT=3000
+pnpm install
+pnpm run build
+remote: Enumerating objects: 308, done.
+remote: Counting objects: 100% (308/308), done.
+remote: Compressing objects: 100% (210/210), done.
+remote: Total 308 (delta 87), reused 308 (delta 87), pack-reused 0 (from 0)
+Receiving objects: 100% (308/308), 416.35 KiB | 3.44 MiB/s, done.
+Resolving deltas: 100% (87/87), done.
+From https://github.com/shanio786/content-planer
+ * branch            main       -> FETCH_HEAD
+ + 5465783...02e3d90 main       -> origin/main  (forced update)
+HEAD is now at 02e3d90 Mirror snapshot 2026-04-25T05:45:22Z
+Scope: all 9 workspace projects
+Lockfile is up to date, resolution step is skipped
+Packages: +22 -17
+++++++++++++++++++++++-----------------
+Progress: resolved 22, reused 2, downloaded 20, added 22, done
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+└─ Done in 16ms
+Done in 2.3s using pnpm v10.33.2
+
+> workspace@0.0.0 build /www/wwwroot/tasks
+> pnpm run typecheck && pnpm -r --if-present run build
+
+
+> workspace@0.0.0 typecheck /www/wwwroot/tasks
+> pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+
+
+> workspace@0.0.0 typecheck:libs /www/wwwroot/tasks
+> tsc --build
+
+Scope: 4 of 9 workspace projects
+artifacts/api-server typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 3.1s
+artifacts/mockup-sandbox typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 6.1s
+artifacts/dashboard typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 7.4s
+scripts typecheck$ tsc -p tsconfig.json --noEmit
+└─ Done in 1.3s
+Scope: 8 of 9 workspace projects
+artifacts/mockup-sandbox build$ vite build
+│ failed to load config from /www/wwwroot/tasks/artifacts/mockup-sandbox/vite.config.ts
+│ error during build:
+│ Error: BASE_PATH environment variable is required but was not provided.
+│     at file:///www/wwwroot/tasks/artifacts/mockup-sandbox/node_modules/.vite-temp/vite.config.ts.timestamp-1777095984768-962715dc823bf.mjs:155:9
+│     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+│     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+│     at async loadConfigFromBundledFile (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/v…
+│     at async bundleAndLoadConfigFile (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vit…
+│     at async loadConfigFromFile (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dis…
+│     at async resolveConfig (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/nod…
+│     at async createBuilder (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/nod…
+│     at async CAC.<anonymous> (file:///www/wwwroot/tasks/node_modules/.pnpm/vite@7.3.1_@types+node@25.3.5_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0_yaml@2.8.2/node_modules/vite/dist/n…
+└─ Failed in 322ms at /www/wwwroot/tasks/artifacts/mockup-sandbox
+/www/wwwroot/tasks/artifacts/mockup-sandbox:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/mockup-sandbox@2.0.0 build: `vite build`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.
+root@srv1527649:/www/wwwroot/tasks# 

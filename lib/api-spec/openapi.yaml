@@ -1,0 +1,1998 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: projects
+    description: Project management
+  - name: revenue
+    description: Revenue tracking
+  - name: tasks
+    description: Task management
+  - name: content
+    description: Content calendar
+  - name: notes
+    description: Notes and ideas
+  - name: keywords
+    description: Keyword research
+  - name: planner
+    description: Daily planner
+  - name: expenses
+    description: Expense tracking
+  - name: dashboard
+    description: Dashboard summary
+  - name: focus
+    description: Daily focus (Aaj ke 3 kaam) and streak
+  - name: reflection
+    description: End-of-day reflection
+  - name: wins
+    description: Wins log (small dopamine moments)
+  - name: settings
+    description: Owner settings (mission, monthly goal, kill thresholds)
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard overview stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all projects
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [idea, building, live, paused, abandoned, flopped]
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a new project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectBody"
+      responses:
+        "201":
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectBody"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/stats:
+    get:
+      operationId: getProjectStats
+      tags: [projects]
+      summary: Get project statistics by type and status
+      responses:
+        "200":
+          description: Project stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectStats"
+
+  /revenue:
+    get:
+      operationId: listRevenue
+      tags: [revenue]
+      summary: List revenue entries
+      parameters:
+        - name: source
+          in: query
+          schema:
+            type: string
+            enum: [ads, youtube, subscriptions, apps, freelance, other]
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Revenue entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RevenueEntry"
+    post:
+      operationId: createRevenue
+      tags: [revenue]
+      summary: Add a revenue entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRevenueBody"
+      responses:
+        "201":
+          description: Created revenue entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueEntry"
+
+  /revenue/{id}:
+    patch:
+      operationId: updateRevenue
+      tags: [revenue]
+      summary: Update a revenue entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRevenueBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueEntry"
+    delete:
+      operationId: deleteRevenue
+      tags: [revenue]
+      summary: Delete a revenue entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /revenue/summary:
+    get:
+      operationId: getRevenueSummary
+      tags: [revenue]
+      summary: Get revenue totals by source
+      responses:
+        "200":
+          description: Revenue summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueSummary"
+
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List all tasks
+      parameters:
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: completed
+          in: query
+          schema:
+            type: boolean
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskBody"
+      responses:
+        "201":
+          description: Created task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{id}:
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskBody"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tasks/{id}/toggle:
+    patch:
+      operationId: toggleTask
+      tags: [tasks]
+      summary: Toggle task completion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Toggled task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/stats:
+    get:
+      operationId: getTaskStats
+      tags: [tasks]
+      summary: Get task completion stats
+      responses:
+        "200":
+          description: Task stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskStats"
+
+  /content:
+    get:
+      operationId: listContent
+      tags: [content]
+      summary: List content calendar items
+      parameters:
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [idea, scheduled, published, cancelled]
+      responses:
+        "200":
+          description: Content items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContentItem"
+    post:
+      operationId: createContent
+      tags: [content]
+      summary: Create a content calendar item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContentBody"
+      responses:
+        "201":
+          description: Created content item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentItem"
+
+  /content/{id}:
+    patch:
+      operationId: updateContent
+      tags: [content]
+      summary: Update a content item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContentBody"
+      responses:
+        "200":
+          description: Updated content item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentItem"
+    delete:
+      operationId: deleteContent
+      tags: [content]
+      summary: Delete a content item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /content/upcoming:
+    get:
+      operationId: getUpcomingContent
+      tags: [content]
+      summary: Get upcoming scheduled content
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 7
+      responses:
+        "200":
+          description: Upcoming content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContentItem"
+
+  /notes:
+    get:
+      operationId: listNotes
+      tags: [notes]
+      summary: List notes and ideas
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Create a note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNoteBody"
+      responses:
+        "201":
+          description: Created note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /notes/{id}:
+    patch:
+      operationId: updateNote
+      tags: [notes]
+      summary: Update a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateNoteBody"
+      responses:
+        "200":
+          description: Updated note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+    delete:
+      operationId: deleteNote
+      tags: [notes]
+      summary: Delete a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /keywords:
+    get:
+      operationId: listKeywords
+      tags: [keywords]
+      summary: List keyword research entries
+      parameters:
+        - name: niche
+          in: query
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [researching, targeting, ranking, dropped]
+      responses:
+        "200":
+          description: List of keywords
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Keyword"
+    post:
+      operationId: createKeyword
+      tags: [keywords]
+      summary: Add a keyword research entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateKeywordBody"
+      responses:
+        "201":
+          description: Created keyword
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Keyword"
+
+  /keywords/{id}:
+    patch:
+      operationId: updateKeyword
+      tags: [keywords]
+      summary: Update a keyword entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateKeywordBody"
+      responses:
+        "200":
+          description: Updated keyword
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Keyword"
+    delete:
+      operationId: deleteKeyword
+      tags: [keywords]
+      summary: Delete a keyword entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /keywords/stats:
+    get:
+      operationId: getKeywordStats
+      tags: [keywords]
+      summary: Get keyword research statistics
+      responses:
+        "200":
+          description: Keyword stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeywordStats"
+
+  /planner:
+    get:
+      operationId: listPlannerItems
+      tags: [planner]
+      summary: List planner items
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [planned, in_progress, done, skipped]
+      responses:
+        "200":
+          description: List of planner items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlannerItem"
+    post:
+      operationId: createPlannerItem
+      tags: [planner]
+      summary: Create a planner item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlannerBody"
+      responses:
+        "201":
+          description: Created planner item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlannerItem"
+
+  /planner/{id}:
+    patch:
+      operationId: updatePlannerItem
+      tags: [planner]
+      summary: Update a planner item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePlannerBody"
+      responses:
+        "200":
+          description: Updated planner item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlannerItem"
+    delete:
+      operationId: deletePlannerItem
+      tags: [planner]
+      summary: Delete a planner item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /expenses:
+    get:
+      operationId: listExpenses
+      tags: [expenses]
+      summary: List all expenses
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [tool, subscription, hosting, domain, freelancer, ads, other]
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      operationId: createExpense
+      tags: [expenses]
+      summary: Add an expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExpenseBody"
+      responses:
+        "201":
+          description: Created expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}:
+    patch:
+      operationId: updateExpense
+      tags: [expenses]
+      summary: Update an expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateExpenseBody"
+      responses:
+        "200":
+          description: Updated expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+    delete:
+      operationId: deleteExpense
+      tags: [expenses]
+      summary: Delete an expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /expenses/summary:
+    get:
+      operationId: getExpenseSummary
+      tags: [expenses]
+      summary: Get expense summary
+      responses:
+        "200":
+          description: Expense summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpenseSummary"
+
+  /focus/today:
+    get:
+      operationId: getTodayFocus
+      tags: [focus]
+      summary: Get today's 3 focus slots (always returns 3 entries, empty slots are nullable)
+      responses:
+        "200":
+          description: Today's focus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyFocusToday"
+
+  /focus:
+    post:
+      operationId: setFocusSlot
+      tags: [focus]
+      summary: Create or replace one focus slot for today
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetFocusBody"
+      responses:
+        "200":
+          description: Created or updated focus item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyFocusItem"
+
+  /focus/{id}:
+    patch:
+      operationId: updateFocus
+      tags: [focus]
+      summary: Update a focus item's title or project link
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFocusBody"
+      responses:
+        "200":
+          description: Updated focus item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyFocusItem"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteFocus
+      tags: [focus]
+      summary: Clear a focus slot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /focus/{id}/toggle:
+    post:
+      operationId: toggleFocus
+      tags: [focus]
+      summary: Toggle a focus item's completed state
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated focus item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyFocusItem"
+        "404":
+          description: Not found
+
+  /focus/streak:
+    get:
+      operationId: getFocusStreak
+      tags: [focus]
+      summary: Get current daily focus streak
+      responses:
+        "200":
+          description: Current streak in days
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FocusStreak"
+
+  /reflection/today:
+    get:
+      operationId: getTodayReflection
+      tags: [reflection]
+      summary: Get today's reflection (or null if not yet submitted)
+      responses:
+        "200":
+          description: Today's reflection or null
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/DailyReflection"
+                  - type: "null"
+
+  /reflection:
+    put:
+      operationId: upsertReflection
+      tags: [reflection]
+      summary: Upsert today's reflection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertReflectionBody"
+      responses:
+        "200":
+          description: Saved reflection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyReflection"
+
+  /wins:
+    get:
+      operationId: listWins
+      tags: [wins]
+      summary: List recent wins (newest first)
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Wins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Win"
+    post:
+      operationId: createWin
+      tags: [wins]
+      summary: Capture a win
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWinBody"
+      responses:
+        "201":
+          description: Created win
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Win"
+
+  /wins/{id}:
+    delete:
+      operationId: deleteWin
+      tags: [wins]
+      summary: Delete a win
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get owner settings (single row)
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    patch:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update one or more settings fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSettingsBody"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+  /dashboard/weekly-review:
+    get:
+      operationId: getWeeklyReview
+      tags: [dashboard]
+      summary: Aggregate review for the past 7 days (this week vs last week)
+      responses:
+        "200":
+          description: Weekly review summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyReview"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [idea, building, live, paused, abandoned, flopped]
+        url:
+          type: ["string", "null"]
+        traffic:
+          type: integer
+        revenue:
+          type: number
+        nextTask:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, type, status, traffic, revenue, createdAt, updatedAt]
+
+    CreateProjectBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [idea, building, live, paused, abandoned, flopped]
+          default: idea
+        url:
+          type: ["string", "null"]
+        traffic:
+          type: integer
+          default: 0
+        revenue:
+          type: number
+          default: 0
+        nextTask:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+      required: [name, type]
+
+    UpdateProjectBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [idea, building, live, paused, abandoned, flopped]
+        url:
+          type: ["string", "null"]
+        traffic:
+          type: integer
+        revenue:
+          type: number
+        nextTask:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+
+    ProjectStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        byType:
+          type: object
+          additionalProperties:
+            type: integer
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        totalTraffic:
+          type: integer
+        totalRevenue:
+          type: number
+      required: [total, byType, byStatus, totalTraffic, totalRevenue]
+
+    RevenueEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        amount:
+          type: number
+        source:
+          type: string
+          enum: [ads, youtube, subscriptions, apps, freelance, other]
+        description:
+          type: ["string", "null"]
+        projectId:
+          type: ["integer", "null"]
+        date:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, amount, source, date, createdAt]
+
+    CreateRevenueBody:
+      type: object
+      properties:
+        amount:
+          type: number
+        source:
+          type: string
+          enum: [ads, youtube, subscriptions, apps, freelance, other]
+        description:
+          type: ["string", "null"]
+        projectId:
+          type: ["integer", "null"]
+        date:
+          type: string
+          format: date-time
+      required: [amount, source, date]
+
+    UpdateRevenueBody:
+      type: object
+      properties:
+        amount:
+          type: number
+        source:
+          type: string
+          enum: [ads, youtube, subscriptions, apps, freelance, other]
+        description:
+          type: ["string", "null"]
+        projectId:
+          type: ["integer", "null"]
+        date:
+          type: string
+          format: date-time
+
+    RevenueSummary:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+        bySource:
+          type: object
+          additionalProperties:
+            type: number
+        thisMonth:
+          type: number
+        lastMonth:
+          type: number
+      required: [totalRevenue, bySource, thisMonth, lastMonth]
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        completed:
+          type: boolean
+        projectId:
+          type: ["integer", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, priority, completed, createdAt]
+
+    CreateTaskBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        projectId:
+          type: ["integer", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+      required: [title]
+
+    UpdateTaskBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        completed:
+          type: boolean
+        projectId:
+          type: ["integer", "null"]
+        dueDate:
+          type: ["string", "null"]
+          format: date-time
+
+    TaskStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        completed:
+          type: integer
+        pending:
+          type: integer
+        overdue:
+          type: integer
+        streak:
+          type: integer
+        byPriority:
+          type: object
+          additionalProperties:
+            type: integer
+      required: [total, completed, pending, overdue, streak, byPriority]
+
+    ContentItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        platform:
+          type: string
+        status:
+          type: string
+          enum: [idea, scheduled, published, cancelled]
+        scheduledDate:
+          type: ["string", "null"]
+          format: date-time
+        projectId:
+          type: ["integer", "null"]
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, platform, status, createdAt]
+
+    CreateContentBody:
+      type: object
+      properties:
+        title:
+          type: string
+        platform:
+          type: string
+        status:
+          type: string
+          enum: [idea, scheduled, published, cancelled]
+          default: idea
+        scheduledDate:
+          type: ["string", "null"]
+          format: date-time
+        projectId:
+          type: ["integer", "null"]
+        description:
+          type: ["string", "null"]
+      required: [title, platform]
+
+    UpdateContentBody:
+      type: object
+      properties:
+        title:
+          type: string
+        platform:
+          type: string
+        status:
+          type: string
+          enum: [idea, scheduled, published, cancelled]
+        scheduledDate:
+          type: ["string", "null"]
+          format: date-time
+        projectId:
+          type: ["integer", "null"]
+        description:
+          type: ["string", "null"]
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: ["string", "null"]
+        category:
+          type: string
+        pinned:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, title, category, pinned, createdAt, updatedAt]
+
+    CreateNoteBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: ["string", "null"]
+        category:
+          type: string
+          default: general
+        pinned:
+          type: boolean
+          default: false
+      required: [title]
+
+    UpdateNoteBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: ["string", "null"]
+        category:
+          type: string
+        pinned:
+          type: boolean
+
+    Keyword:
+      type: object
+      properties:
+        id:
+          type: integer
+        keyword:
+          type: string
+        niche:
+          type: string
+        volume:
+          type: integer
+        difficulty:
+          type: integer
+        cpc:
+          type: number
+        competition:
+          type: string
+          enum: [low, medium, high]
+        position:
+          type: ["integer", "null"]
+        projectId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [researching, targeting, ranking, dropped]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, keyword, niche, volume, difficulty, cpc, competition, status, createdAt, updatedAt]
+
+    CreateKeywordBody:
+      type: object
+      properties:
+        keyword:
+          type: string
+        niche:
+          type: string
+        volume:
+          type: integer
+          default: 0
+        difficulty:
+          type: integer
+          default: 0
+        cpc:
+          type: number
+          default: 0
+        competition:
+          type: string
+          enum: [low, medium, high]
+          default: low
+        position:
+          type: ["integer", "null"]
+        projectId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [researching, targeting, ranking, dropped]
+          default: researching
+      required: [keyword, niche]
+
+    UpdateKeywordBody:
+      type: object
+      properties:
+        keyword:
+          type: string
+        niche:
+          type: string
+        volume:
+          type: integer
+        difficulty:
+          type: integer
+        cpc:
+          type: number
+        competition:
+          type: string
+          enum: [low, medium, high]
+        position:
+          type: ["integer", "null"]
+        projectId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [researching, targeting, ranking, dropped]
+
+    KeywordStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        byNiche:
+          type: object
+          additionalProperties:
+            type: integer
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        avgDifficulty:
+          type: number
+        avgVolume:
+          type: number
+      required: [total, byNiche, byStatus, avgDifficulty, avgVolume]
+
+    PlannerItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, in_progress, done, skipped]
+        timeSlot:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, date, title, status, priority, createdAt, updatedAt]
+
+    CreatePlannerBody:
+      type: object
+      properties:
+        date:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, in_progress, done, skipped]
+          default: planned
+        timeSlot:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+      required: [date, title]
+
+    UpdatePlannerBody:
+      type: object
+      properties:
+        date:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [planned, in_progress, done, skipped]
+        timeSlot:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+
+    Expense:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+          enum: [tool, subscription, hosting, domain, freelancer, ads, other]
+        billingCycle:
+          type: string
+          enum: [monthly, yearly, one_time]
+        renewalDate:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, amount, category, billingCycle, active, createdAt, updatedAt]
+
+    CreateExpenseBody:
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+          enum: [tool, subscription, hosting, domain, freelancer, ads, other]
+          default: tool
+        billingCycle:
+          type: string
+          enum: [monthly, yearly, one_time]
+          default: monthly
+        renewalDate:
+          type: ["string", "null"]
+        active:
+          type: boolean
+          default: true
+        notes:
+          type: ["string", "null"]
+      required: [name, amount]
+
+    UpdateExpenseBody:
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+          enum: [tool, subscription, hosting, domain, freelancer, ads, other]
+        billingCycle:
+          type: string
+          enum: [monthly, yearly, one_time]
+        renewalDate:
+          type: ["string", "null"]
+        active:
+          type: boolean
+        notes:
+          type: ["string", "null"]
+
+    ExpenseSummary:
+      type: object
+      properties:
+        totalMonthly:
+          type: number
+        totalYearly:
+          type: number
+        totalOneTime:
+          type: number
+        byCategory:
+          type: object
+          additionalProperties:
+            type: number
+        activeCount:
+          type: integer
+      required: [totalMonthly, totalYearly, totalOneTime, byCategory, activeCount]
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalProjects:
+          type: integer
+        liveProjects:
+          type: integer
+        totalRevenue:
+          type: number
+        thisMonthRevenue:
+          type: number
+        pendingTasks:
+          type: integer
+        completedTasksToday:
+          type: integer
+        upcomingContent:
+          type: integer
+        recentNotes:
+          type: integer
+        monthlyExpenses:
+          type: number
+        totalKeywords:
+          type: integer
+        todayPlannerItems:
+          type: integer
+        abandonedProjects:
+          type: integer
+      required: [totalProjects, liveProjects, totalRevenue, thisMonthRevenue, pendingTasks, completedTasksToday, upcomingContent, recentNotes, monthlyExpenses, totalKeywords, todayPlannerItems, abandonedProjects]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [project_created, project_updated, revenue_added, task_completed, content_scheduled, note_created]
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        timestamp:
+          type: string
+          format: date-time
+      required: [id, type, title, timestamp]
+
+    DailyFocusItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        slot:
+          type: integer
+          enum: [1, 2, 3]
+        title:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, date, slot, title, createdAt, updatedAt]
+
+    DailyFocusToday:
+      type: object
+      properties:
+        date:
+          type: string
+        slots:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/DailyFocusItem"
+              - type: "null"
+      required: [date, slots]
+
+    SetFocusBody:
+      type: object
+      properties:
+        slot:
+          type: integer
+          enum: [1, 2, 3]
+        title:
+          type: string
+          minLength: 1
+        projectId:
+          type: ["integer", "null"]
+      required: [slot, title]
+
+    UpdateFocusBody:
+      type: object
+      properties:
+        title:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+
+    FocusStreak:
+      type: object
+      properties:
+        streak:
+          type: integer
+        lastCompleteDate:
+          type: ["string", "null"]
+      required: [streak]
+
+    DailyReflection:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        didWhat:
+          type: ["string", "null"]
+        blocker:
+          type: ["string", "null"]
+        lesson:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, date, createdAt, updatedAt]
+
+    UpsertReflectionBody:
+      type: object
+      properties:
+        didWhat:
+          type: ["string", "null"]
+        blocker:
+          type: ["string", "null"]
+        lesson:
+          type: ["string", "null"]
+
+    Win:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        projectId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, text, createdAt]
+
+    CreateWinBody:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+        projectId:
+          type: ["integer", "null"]
+      required: [text]
+
+    Settings:
+      type: object
+      properties:
+        id:
+          type: integer
+        mission:
+          type: string
+        monthlyGoalAmount:
+          type: number
+        killWarnDays:
+          type: integer
+        killDeadDays:
+          type: integer
+        weekStartsOn:
+          type: integer
+        reflectionStartHour:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, mission, monthlyGoalAmount, killWarnDays, killDeadDays, weekStartsOn, reflectionStartHour, updatedAt]
+
+    UpdateSettingsBody:
+      type: object
+      properties:
+        mission:
+          type: string
+        monthlyGoalAmount:
+          type: number
+          minimum: 0
+        killWarnDays:
+          type: integer
+          minimum: 1
+        killDeadDays:
+          type: integer
+          minimum: 1
+        weekStartsOn:
+          type: integer
+          minimum: 0
+          maximum: 6
+        reflectionStartHour:
+          type: integer
+          minimum: 0
+          maximum: 23
+
+    WeeklyProjectSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+        ageDays:
+          type: integer
+        traffic:
+          type: integer
+        revenue:
+          type: number
+        flag:
+          type: string
+          enum: [working, review, kill, grace]
+      required: [id, name, type, status, ageDays, traffic, revenue, flag]
+
+    WeeklyReview:
+      type: object
+      properties:
+        weekStartDate:
+          type: string
+        weekEndDate:
+          type: string
+        revenueThisWeek:
+          type: number
+        revenueLastWeek:
+          type: number
+        revenueChangePct:
+          type: ["number", "null"]
+        tasksCompletedThisWeek:
+          type: integer
+        focusDaysCompletedThisWeek:
+          type: integer
+        currentStreak:
+          type: integer
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklyProjectSummary"
+      required: [weekStartDate, weekEndDate, revenueThisWeek, revenueLastWeek, tasksCompletedThisWeek, focusDaysCompletedThisWeek, currentStreak, projects]
